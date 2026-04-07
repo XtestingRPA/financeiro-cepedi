@@ -1,7 +1,7 @@
 *** Settings ***
 Library    RPA.PDF
 Library    String
-Library    RPA.Browser.Selenium
+Library    SeleniumLibrary
 Library    DateTime
 
 
@@ -51,7 +51,7 @@ Operação Conexa
     [Documentation]    Loga no site da Conexa e realiza o download dos boletos.
 
     # Realiza o login no site Coneza
-    Open Browser    ${url_conexa}    browser=edge
+    Open Browser    ${url_conexa}    browser=chrome
     Maximize Browser Window
     Wait Until Element Is Visible    ${form_login_conexa}
     Input Text    ${input_login_conexa}    ${login_conexa}
@@ -143,30 +143,6 @@ Extrair Dados Boleto
 
 Operação Easonilo
     [Documentation]    Lógica para adicionar os contracheques previamente baixados.
-
-    # ${options}=    Evaluate    selenium.webdriver.ChromeOptions()    modules=selenium.webdriver
-
-    # Call Method    ${options}    add_argument    --allow-running-insecure-content
-    # Call Method    ${options}    add_argument    --disable-web-security
-    # Call Method    ${options}    add_argument    --allow-insecure-localhost
-    # Call Method    ${options}    add_argument    --ignore-certificate-errors
-
-    # ${arg_unsafely}=    Set Variable    --unsafely-treat-insecure-origin-as-secure=http://172.16.10.236:7070
-    # Call Method    ${options}    add_argument    ${arg_unsafely}
-
-    # ${arg_blink}=    Set Variable    --disable-blink-features=AutomationControlled
-    # Call Method    ${options}    add_argument    ${arg_blink}
-
-    # ${arg_pna}=    Set Variable    --disable-features=PrivateNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,OutOfBlinkCors
-    # Call Method    ${options}    add_argument    ${arg_pna}
-
-    # ${exclude_switches}=    Create List    enable-automation
-    # Call Method    ${options}    add_experimental_option    excludeSwitches    ${exclude_switches}
-
-    # ${prefs}=    Create Dictionary    profile.default_content_setting_values.local_network_access=${1}
-    # Call Method    ${options}    add_experimental_option    prefs    ${prefs}
-
-    # Create WebDriver    Chrome    options=${options}
 
 
 
