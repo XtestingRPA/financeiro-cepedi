@@ -28,19 +28,30 @@ ${checkbox_cobranca}                  css:input[id="cobranca-grid_c0_all"]
 ${button_acoes_em_lote}               css:a[class="btn dropdown-toggle"]
 ${button_download}                    css:a[onclick="javascript:vueApp.displayModal()"]
 ${button_continuar}                   css:button[class="btn btn-close btn-primary"]
-
+${url_easonilo}                       https://easonilog.web.app/pages/coming-soon
+${form_easonilo}                      css:div[id="coming-soon-form"]
+${button_pag_cepedi}                  css:a[href="/pages/auth/cepedi/login-2"]
+${form_login_cepedi}                  css:div[id="login-form"]
+${input_login_easonilo}               css:input[formcontrolname="email"]
+${input_senha_easonilo}               css:input[formcontrolname="password"]
+${login_easonilo}                     lucca.dratovsky@xtesting.com.br
+${senha_easonilo}                     cpd@123
+${button_login_easonilo}              xpath://*[@id="login-form"]/form/button
+${carregamento_login_easonilo}        xpath=//simple-snack-bar[.//span[text()='Carregando...']]
+${usuario_easonilo}                   xpath=//span[normalize-space()="Lucca Dratovsky"]
+${button_financeiro}                  xpath=//span[normalize-space()="Financeiros"]/ancestor::a
 *** Tasks ***
-Processo CEPEDI
-    Operação Conexa
+Processo Financeiro CEPEDI
+    # Operação Conexa
     # Extrair Dados Boletos
-
+    Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
     [Documentation]    Loga no site da Conexa e realiza o download dos boletos.
 
     # Realiza o login no site Coneza
-    Open Browser    ${url_conexa}    browser=chrome
+    Open Browser    ${url_conexa}    browser=edge
     Maximize Browser Window
     Wait Until Element Is Visible    ${form_login_conexa}
     Input Text    ${input_login_conexa}    ${login_conexa}
@@ -128,6 +139,61 @@ Extrair Dados Boleto
     Log    Documento:${doc}
     Log    Valor:${valor}
     Log    Pagador:${pagador}
+
+
+Operação Easonilo
+    [Documentation]    Lógica para adicionar os contracheques previamente baixados.
+
+    # ${options}=    Evaluate    selenium.webdriver.ChromeOptions()    modules=selenium.webdriver
+
+    # Call Method    ${options}    add_argument    --allow-running-insecure-content
+    # Call Method    ${options}    add_argument    --disable-web-security
+    # Call Method    ${options}    add_argument    --allow-insecure-localhost
+    # Call Method    ${options}    add_argument    --ignore-certificate-errors
+
+    # ${arg_unsafely}=    Set Variable    --unsafely-treat-insecure-origin-as-secure=http://172.16.10.236:7070
+    # Call Method    ${options}    add_argument    ${arg_unsafely}
+
+    # ${arg_blink}=    Set Variable    --disable-blink-features=AutomationControlled
+    # Call Method    ${options}    add_argument    ${arg_blink}
+
+    # ${arg_pna}=    Set Variable    --disable-features=PrivateNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,OutOfBlinkCors
+    # Call Method    ${options}    add_argument    ${arg_pna}
+
+    # ${exclude_switches}=    Create List    enable-automation
+    # Call Method    ${options}    add_experimental_option    excludeSwitches    ${exclude_switches}
+
+    # ${prefs}=    Create Dictionary    profile.default_content_setting_values.local_network_access=${1}
+    # Call Method    ${options}    add_experimental_option    prefs    ${prefs}
+
+    # Create WebDriver    Chrome    options=${options}
+
+
+
+    # Realiza o login no sistema Easonilo.
+    Open Browser    ${url_easonilo}    browser=chrome
+    Maximize Browser Window
+    Wait Until Element Is Visible    ${form_easonilo}    60s
+    Click Element    ${button_pag_cepedi}
+    Wait Until Element Is Visible    ${form_login_cepedi}
+    Input Text    ${input_login_easonilo}    ${login_easonilo}
+    Input Password    ${input_senha_easonilo}    ${senha_easonilo}
+    Wait Until Element Is Enabled    ${button_login_easonilo}    15s
+    Click Element                    ${button_login_easonilo}
+    
+    # Wait Until Keyword Succeeds    30x    2s    Verificar JWT Token
+
+    # Faz a verificação se realizou o login e vai para a página do financeiro.
+    Wait Until Element Is Not Visible    ${carregamento_login_easonilo}    30s
+    Wait Until Element Is Visible    ${usuario_easonilo}    60s
+    Click Element    ${button_financeiro}
+
+
+Verificar JWT Token
+    ${token}=           Execute Javascript    return localStorage.getItem('JWT_TOKEN')
+    Should Not Be Empty    ${token}
+    Should Not Be Equal    ${token}    JWT_TOKEN
+    Log    Login OK! Token obtido com sucesso.    console=True
 
 Lógica Data 
     [Documentation]    Lógica para pegar o último dia do mês atua e conferir se o mês e ano selecionados estão corretos.
