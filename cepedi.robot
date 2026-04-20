@@ -3,10 +3,23 @@ Library    RPA.PDF
 Library    String
 Library    SeleniumLibrary
 Library    DateTime
+Library    RPA.Assistant
 
 
 *** Variables ***
-
+&{MESES_PT}
+...    Jan=Jan
+...    Feb=Fev
+...    Mar=Mar
+...    Apr=Abr
+...    May=Mai
+...    Jun=Jun
+...    Jul=Jul
+...    Aug=Ago
+...    Sep=Set
+...    Oct=Out
+...    Nov=Nov
+...    Dec=Dez
 ${url_conexa}                         https://hubbsalvador.conexa.app/index.php?r=site/login
 ${login_conexa}                       vanderleia
 ${senha_conexa}                       Financeiro@2026
@@ -42,9 +55,9 @@ ${usuario_easonilo}                   xpath=//span[normalize-space()="Lucca Drat
 ${button_financeiro}                  xpath=//span[normalize-space()="Financeiros"]/ancestor::a
 *** Tasks ***
 Processo Financeiro CEPEDI
-    # Operação Conexa
+    Operação Conexa
     # Extrair Dados Boletos
-    Operação Easonilo
+    # Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
@@ -92,15 +105,43 @@ Operação Conexa
 
     # Seleciona todos os boletos filtrados (de uma só vez) e faz o download dos mesmos.
     Wait Until Element Is Visible    ${checkbox_cobranca}    15s
+    Sleep    5s
     Click Element    ${checkbox_cobranca}
     Click Element    ${button_acoes_em_lote}
     Click Element    ${button_download}
 
-    ${visivel}    Run Keyword And Return Status    Wait Until Element Is Visible    ${button_continuar}    timeout=3s
+    Assistente Operação
 
-    IF    ${visivel}
-        Click Element    ${button_continuar}
-    END    
+    # ${visivel}    Run Keyword And Return Status    Wait Until Element Is Visible    ${button_continuar}    timeout=3s
+
+    # IF    ${visivel}
+    #     Click Element    ${button_continuar}
+    # END    
+
+
+Assistente Operação
+    [Documentation]    Realiza instruções a respeito do download dos boletos.
+
+    Add heading    Ação necessária!
+    Add text    Por motivos de segurança, este robô não acessa o seu e-mail.
+    
+    Add text    Siga os passos abaixo:
+    Add text    1. Acesse seu e-mail
+    Add text    2. Baixe os boletos recebidos
+    Add text    3. Salve os arquivos na "Boletos"
+
+    Add text    Após finalizar, clique em "Continuar" para prosseguir.
+
+    Add submit buttons    buttons=Continuar,Cancelar
+
+    ${resposta}    Run dialog
+
+    IF    "${resposta}" == "Cancelar"
+        Fail    Processo cancelado pelo usuário
+    END
+
+
+
 Extrair Dados Boleto
     [Documentation]    Realiza a leitura e extração de dados dos boletos.
     Open Pdf    boletoteste.pdf
@@ -157,19 +198,12 @@ Operação Easonilo
     Wait Until Element Is Enabled    ${button_login_easonilo}    15s
     Click Element                    ${button_login_easonilo}
     
-    # Wait Until Keyword Succeeds    30x    2s    Verificar JWT Token
 
     # Faz a verificação se realizou o login e vai para a página do financeiro.
     Wait Until Element Is Not Visible    ${carregamento_login_easonilo}    30s
     Wait Until Element Is Visible    ${usuario_easonilo}    60s
     Click Element    ${button_financeiro}
 
-
-Verificar JWT Token
-    ${token}=           Execute Javascript    return localStorage.getItem('JWT_TOKEN')
-    Should Not Be Empty    ${token}
-    Should Not Be Equal    ${token}    JWT_TOKEN
-    Log    Login OK! Token obtido com sucesso.    console=True
 
 Lógica Data 
     [Documentation]    Lógica para pegar o último dia do mês atua e conferir se o mês e ano selecionados estão corretos.
@@ -183,6 +217,7 @@ Lógica Data
 
     ${ano_atual}        Get Current Date    result_format=%Y
     ${mes_atual_label}  Get Current Date    result_format=%b
+    ${mes_atual_label}   Set Variable    ${MESES_PT}[${mes_atual_label}]
 
     ${mes_selecionado}    Get Selected List Label    ${seletor_mes}
     ${ano_selecionado}    Get Selected List Value    ${seletor_ano}
