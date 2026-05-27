@@ -4,6 +4,8 @@ Library    String
 Library    SeleniumLibrary
 Library    DateTime
 Library    RPA.Assistant
+Library    OperatingSystem
+Library    Collections
 
 
 *** Variables ***
@@ -55,15 +57,15 @@ ${usuario_easonilo}                   xpath=//span[normalize-space()="Lucca Drat
 ${button_financeiro}                  xpath=//span[normalize-space()="Financeiros"]/ancestor::a
 *** Tasks ***
 Processo Financeiro CEPEDI
-    Operação Conexa
+    # Operação Conexa
     # Extrair Dados Boletos
-    # Operação Easonilo
+    Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
     [Documentation]    Loga no site da Conexa e realiza o download dos boletos.
 
-    # Realiza o login no site Coneza
+    # Realiza o login no site Conexa
     Open Browser    ${url_conexa}    browser=chrome
     Maximize Browser Window
     Wait Until Element Is Visible    ${form_login_conexa}
@@ -144,42 +146,65 @@ Assistente Operação
 
 Extrair Dados Boleto
     [Documentation]    Realiza a leitura e extração de dados dos boletos.
-    Open Pdf    boletoteste.pdf
 
-    ${texto_dict}    Get Text From Pdf
-    Close Pdf
+    ${arquivos}    List Files In Directory    C:/boletos    *.pdf
 
-    ${texto}    Set Variable    ${EMPTY}
-    FOR    ${pagina}    IN    @{texto_dict.values()}
-        ${texto}    Catenate    SEPARATOR=\n    ${texto}    ${pagina}
+    ${boletos}=    Create List
+
+    FOR    ${arquivo}    IN    @{arquivos}
+
+        Open Pdf    ${arquivo}
+
+        ${texto_dict}    Get Text From Pdf
+        Close Pdf
+
+        ${texto}    Set Variable    ${EMPTY}
+        FOR    ${pagina}    IN    @{texto_dict.values()}
+            ${texto}    Catenate    SEPARATOR=\n    ${texto}    ${pagina}
+        END
+
+        Log    ${texto}
+
+        # Número do documento
+        ${doc_full}    Get Regexp Matches    ${texto}    (\\d{4})\\d{10,}\\d{2}/\\d{2}/\\d{4}
+        IF    ${doc_full}
+            ${doc}    Get Substring    ${doc_full[0]}    0    4
+        ELSE
+            ${doc}    Set Variable    NAO_ENCONTRADO
+        END
+
+        # Valor do boleto
+        ${valores}    Get Regexp Matches    ${texto}    \\d{1,3}(?:\\.\\d{3})*,\\d{2}
+        ${valor}    Set Variable    ${valores}[-1]
+
+        # Nome do pagador
+        ${pagador}    Get Regexp Matches    ${texto}    (?i)Pagador\\s*(?:\\[[^\\]]+\\]\\s*)?[\\r\\n]+(?:\\[[^\\]]+\\]\\s*)?([^\\r\\n]+)
+        
+        IF    ${pagador}
+            ${pagador}    Set Variable    ${pagador}[0]
+            ${pagador}    Replace String    ${pagador}    Pagador    ${EMPTY}
+            ${pagador}    Strip String    ${pagador}
+        ELSE
+            ${pagador}    Set Variable    NAO_ENCONTRADO
+        END
+
+        Log    Arquivo: ${arquivo}
+        Log    Documento: ${doc}
+        Log    Valor: ${valor}
+        Log    Pagador: ${pagador}
+
+        # (estrutura dos dados)
+        ${boleto}    Create Dictionary
+        ...    arquivo=${arquivo}
+        ...    doc=${doc}
+        ...    valor=${valor}
+        ...    pagador=${pagador}
+
+        Append To List    ${boletos}    ${boleto}
+
     END
 
-    Log    ${texto}
-
-    # Número do documento
-    ${doc_full}    Get Regexp Matches    ${texto}    (\\d{4})\\d{10,}\\d{2}/\\d{2}/\\d{4}    
-    IF    ${doc_full}
-    ${doc}    Get Substring    ${doc_full[0]}    0    4
-    ELSE
-        ${doc}    Set Variable    NAO_ENCONTRADO
-    END
-    
-
-    # Valor do boleto
-    ${valores}    Get Regexp Matches    ${texto}    \\d{1,3}(?:\\.\\d{3})*,\\d{2}
-    ${valor}    Set Variable    ${valores}[-1]    
-    
-    # Nome do pagador
-    ${pagador}    Get Regexp Matches    ${texto}    (?i)Pagador\\s*(?:\\[[^\\]]+\\]\\s*)?[\\r\\n]+(?:\\[[^\\]]+\\]\\s*)?([^\\r\\n]+)
-    ${pagador}    Set Variable    ${pagador}[1]
-    
-    ${pagador}    Replace String    ${pagador}    Pagador    ${EMPTY}
-    ${pagador}    Strip String    ${pagador}
-  
-
-    Log    Documento:${doc}
-    Log    Valor:${valor}
-    Log    Pagador:${pagador}
+    RETURN    ${boletos}
 
 
 Operação Easonilo
@@ -188,8 +213,9 @@ Operação Easonilo
 
 
     # Realiza o login no sistema Easonilo.
-    Open Browser    ${url_easonilo}    browser=chrome
+    Abrir Chrome Permitindo Conteudo Inseguro
     Maximize Browser Window
+    Sleep    2s
     Wait Until Element Is Visible    ${form_easonilo}    60s
     Click Element    ${button_pag_cepedi}
     Wait Until Element Is Visible    ${form_login_cepedi}
@@ -232,3 +258,13 @@ Lógica Data
         Select From List By Label    ${seletor_mes}    ${mes_atual_label}
     END
 
+Abrir Chrome Permitindo Conteudo Inseguro
+    ${options}    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
+
+    Call Method    ${options}    add_argument    --allow-running-insecure-content
+    Call Method    ${options}    add_argument    --disable-web-security
+    Call Method    ${options}    add_argument    --ignore-certificate-errors
+
+    Create Webdriver    Chrome    options=${options}
+
+    Go To    ${url_easonilo}
