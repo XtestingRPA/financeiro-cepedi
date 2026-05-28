@@ -54,18 +54,27 @@ ${senha_easonilo}                     cpd@123
 ${button_login_easonilo}              xpath://*[@id="login-form"]/form/button
 ${carregamento_login_easonilo}        xpath=//simple-snack-bar[.//span[text()='Carregando...']]
 ${usuario_easonilo}                   xpath=//span[normalize-space()="Lucca Dratovsky"]
-${button_financeiro}                  xpath=//span[normalize-space()="Financeiros"]/ancestor::a
+${button_financeiro}                  xpath=//a[.//span[normalize-space()="Financeiros"]]
+${button_movimentos}                  xpath=//a[.//span[normalize-space()="Movimentos"]]
+${button_receber_contas}              xpath=//a[.//span[normalize-space()="Receber contas"]]
+${header_contas_a_receber}            xpath=//span[normalize-space()="Contas a receber"]
+${button_adicionar}                   css:button.add-product-button
+${header_novo_contas}                 xpath://span[normalize-space()="Conta a receber"]
+${input_prefixo}                      xpath://input[@formcontrolname="prefixo"]
+${input_cli}                          xpath://span[normalize-space()="CLI"]
+${input_numero}                       css:input[formcontrolname="numero"]
 *** Tasks ***
 Processo Financeiro CEPEDI
     # Operação Conexa
-    # Extrair Dados Boletos
-    Operação Easonilo
+    Extrair Dados Boleto
+    # Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
     [Documentation]    Loga no site da Conexa e realiza o download dos boletos.
 
     # Realiza o login no site Conexa
+
     Open Browser    ${url_conexa}    browser=chrome
     Maximize Browser Window
     Wait Until Element Is Visible    ${form_login_conexa}
@@ -74,6 +83,7 @@ Operação Conexa
     Click Element    ${button_login_conexa}
     
     # Fecha o modal.
+
     ${visivel}    Run Keyword And Return Status    Wait Until Element Is Visible    ${modal_conexa}    timeout=3s
 
     IF    ${visivel}
@@ -81,6 +91,7 @@ Operação Conexa
     END
 
     # Vai até a página contas a receber
+
     Mouse Over    ${button_menu_financeiro}
     Sleep    2s
     Wait Until Element Is Visible    ${button_menu_financeiro}
@@ -91,6 +102,7 @@ Operação Conexa
     Click Element    ${button_contas_a_receber}
 
     # Realiza a filtragem dos boletos
+
     Wait Until Element Is Visible    ${button_busca_avancada}
     Click Element    ${button_busca_avancada}
     Sleep    1s
@@ -106,6 +118,7 @@ Operação Conexa
     Click Element    ${button_filtrar}
 
     # Seleciona todos os boletos filtrados (de uma só vez) e faz o download dos mesmos.
+
     Wait Until Element Is Visible    ${checkbox_cobranca}    15s
     Sleep    5s
     Click Element    ${checkbox_cobranca}
@@ -147,12 +160,14 @@ Assistente Operação
 Extrair Dados Boleto
     [Documentation]    Realiza a leitura e extração de dados dos boletos.
 
-    ${arquivos}    List Files In Directory    C:/boletos    *.pdf
+    ${arquivos}    List Files In Directory    path=${CURDIR}/Boletos
 
-    ${boletos}=    Create List
+    ${boletos}    Create List
 
     FOR    ${arquivo}    IN    @{arquivos}
 
+        ${caminho_pdf}    Set Variable    ${CURDIR}/Boletos/${arquivo}
+        
         Open Pdf    ${arquivo}
 
         ${texto_dict}    Get Text From Pdf
@@ -166,6 +181,7 @@ Extrair Dados Boleto
         Log    ${texto}
 
         # Número do documento
+
         ${doc_full}    Get Regexp Matches    ${texto}    (\\d{4})\\d{10,}\\d{2}/\\d{2}/\\d{4}
         IF    ${doc_full}
             ${doc}    Get Substring    ${doc_full[0]}    0    4
@@ -174,10 +190,12 @@ Extrair Dados Boleto
         END
 
         # Valor do boleto
+
         ${valores}    Get Regexp Matches    ${texto}    \\d{1,3}(?:\\.\\d{3})*,\\d{2}
         ${valor}    Set Variable    ${valores}[-1]
 
         # Nome do pagador
+
         ${pagador}    Get Regexp Matches    ${texto}    (?i)Pagador\\s*(?:\\[[^\\]]+\\]\\s*)?[\\r\\n]+(?:\\[[^\\]]+\\]\\s*)?([^\\r\\n]+)
         
         IF    ${pagador}
@@ -194,6 +212,7 @@ Extrair Dados Boleto
         Log    Pagador: ${pagador}
 
         # (estrutura dos dados)
+
         ${boleto}    Create Dictionary
         ...    arquivo=${arquivo}
         ...    doc=${doc}
@@ -213,6 +232,7 @@ Operação Easonilo
 
 
     # Realiza o login no sistema Easonilo.
+
     Abrir Chrome Permitindo Conteudo Inseguro
     Maximize Browser Window
     Sleep    2s
@@ -226,9 +246,26 @@ Operação Easonilo
     
 
     # Faz a verificação se realizou o login e vai para a página do financeiro.
+
     Wait Until Element Is Not Visible    ${carregamento_login_easonilo}    30s
     Wait Until Element Is Visible    ${usuario_easonilo}    60s
     Click Element    ${button_financeiro}
+    Wait Until Element Is Visible    ${button_movimentos}
+    Click Element    ${button_movimentos}
+    Wait Until Element Is Visible    ${button_receber_contas}
+    Click Element    ${button_receber_contas}
+
+
+    # Confere se realmente entrou na página e realiza o upload dos contracheques.
+
+    Wait Until Element Is Visible    ${header_contas_a_receber}
+    Click Element    ${button_adicionar}
+    Wait Until Element Is Visible    ${header_novo_contas}
+    Click Element    ${input_prefixo}
+    Wait Until Element Is Visible    ${input_cli}
+    Click Element    ${input_cli}
+    # Input Text    ${input_numero}    
+
 
 
 Lógica Data 
@@ -249,16 +286,19 @@ Lógica Data
     ${ano_selecionado}    Get Selected List Value    ${seletor_ano}
 
     # Ajusta ano
+
     IF    '${ano_selecionado}' != '${ano_atual}'
         Select From List By Value    ${seletor_ano}    ${ano_atual}
     END
 
     # Ajusta mês
+
     IF    '${mes_selecionado}' != '${mes_atual_label}'
         Select From List By Label    ${seletor_mes}    ${mes_atual_label}
     END
 
 Abrir Chrome Permitindo Conteudo Inseguro
+
     ${options}    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
 
     Call Method    ${options}    add_argument    --allow-running-insecure-content
