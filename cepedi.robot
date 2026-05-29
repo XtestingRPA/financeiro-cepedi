@@ -199,9 +199,12 @@ Extrair Dados Boleto
         ${pagador}    Get Regexp Matches    ${texto}    [^\n\r]*CNPJ[^\n\r]+
 
         IF    ${pagador}
-            ${pagador}    Strip String    ${pagador}[-1]
+            ${pagador}        Strip String          ${pagador}[-1]
+            ${nome_match}     Get Regexp Matches    ${pagador}        ^(.+?)\\s*-\\s*CNPJ    1
+            ${nome_pagador}           Set Variable If       ${nome_match}     ${nome_match}[0]       ${pagador}
         ELSE
             ${pagador}    Set Variable    NAO_ENCONTRADO
+            ${nome_pagador}       Set Variable    NAO_ENCONTRADO
         END
 
         # Vencimento
@@ -225,6 +228,7 @@ Extrair Dados Boleto
         END
 
         Log    Arquivo: ${arquivo}
+        Log    Nome do pagador: ${nome_pagador}
         Log    Documento: ${doc}
         Log    Vencimento: ${vencimento}
         Log    Data do documento: ${data_doc}
@@ -235,6 +239,7 @@ Extrair Dados Boleto
 
         ${boleto}    Create Dictionary
         ...    arquivo=${arquivo}
+        ...    nome_pagador=${nome_pagador}
         ...    doc=${doc}
         ...    vencimento=${vencimento}
         ...    data_doc=${data_doc}
