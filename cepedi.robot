@@ -168,7 +168,7 @@ Extrair Dados Boleto
 
         ${caminho_pdf}    Set Variable    ${CURDIR}/Boletos/${arquivo}
         
-        Open Pdf    ${arquivo}
+        Open Pdf    ${caminho_pdf}
 
         ${texto_dict}    Get Text From Pdf
         Close Pdf
@@ -192,22 +192,42 @@ Extrair Dados Boleto
         # Valor do boleto
 
         ${valores}    Get Regexp Matches    ${texto}    \\d{1,3}(?:\\.\\d{3})*,\\d{2}
-        ${valor}    Set Variable    ${valores}[-1]
+        ${valor}      Set Variable    ${valores}[-1]
 
         # Nome do pagador
 
-        ${pagador}    Get Regexp Matches    ${texto}    (?i)Pagador\\s*(?:\\[[^\\]]+\\]\\s*)?[\\r\\n]+(?:\\[[^\\]]+\\]\\s*)?([^\\r\\n]+)
-        
+        ${pagador}    Get Regexp Matches    ${texto}    [^\n\r]*CNPJ[^\n\r]+
+
         IF    ${pagador}
-            ${pagador}    Set Variable    ${pagador}[0]
-            ${pagador}    Replace String    ${pagador}    Pagador    ${EMPTY}
-            ${pagador}    Strip String    ${pagador}
+            ${pagador}    Strip String    ${pagador}[-1]
         ELSE
             ${pagador}    Set Variable    NAO_ENCONTRADO
         END
 
+        # Vencimento
+
+        ${venc_match}    Get Regexp Matches    ${texto}    Vencimento(\\d{2}/\\d{2}/\\d{4})    1
+
+        IF    ${venc_match}
+            ${vencimento}    Set Variable    ${venc_match}[0]
+        ELSE
+            ${vencimento}    Set Variable    NAO_ENCONTRADO
+        END
+
+        # Data do documento
+
+        ${data_doc_match}    Get Regexp Matches    ${texto}    Data process\\.\\s*\\n\\S+\\s*(\\d{2}/\\d{2}/\\d{4})    1
+
+        IF    ${data_doc_match}
+            ${data_doc}    Set Variable    ${data_doc_match}[0]
+        ELSE
+            ${data_doc}    Set Variable    NAO_ENCONTRADO
+        END
+
         Log    Arquivo: ${arquivo}
         Log    Documento: ${doc}
+        Log    Vencimento: ${vencimento}
+        Log    Data do documento: ${data_doc}
         Log    Valor: ${valor}
         Log    Pagador: ${pagador}
 
@@ -216,6 +236,8 @@ Extrair Dados Boleto
         ${boleto}    Create Dictionary
         ...    arquivo=${arquivo}
         ...    doc=${doc}
+        ...    vencimento=${vencimento}
+        ...    data_doc=${data_doc}
         ...    valor=${valor}
         ...    pagador=${pagador}
 
