@@ -163,6 +163,12 @@ Extrair Dados Boleto
             ${vencimento}    Set Variable    NAO_ENCONTRADO
         END
 
+        IF    ${venc_match}
+            ${mes_vencimento}    Get Substring    ${vencimento}    3    5
+        ELSE
+            ${mes_vencimento}    Set Variable    NAO_ENCONTRADO
+        END
+
         # Data do documento
 
         ${data_doc_match}    Get Regexp Matches    ${texto}    Data process\\.\\s*\\n\\S+\\s*(\\d{2}/\\d{2}/\\d{4})    1
@@ -237,8 +243,40 @@ Operação Easonilo
     Click Element    ${input_prefixo}
     Wait Until Element Is Visible    ${input_cli}
     Click Element    ${input_cli}
-    # Input Text    ${input_numero}    
-
+    Input Text    ${input_numero}    ${doc}
+    Input Text    ${parcela}    ${mes_vencimento}
+    Input Text    ${locator_valor}    ${valor}     
+    Click Element    ${lupa_codigo_natureza}    
+    Wait Until Element Is Visible    ${locator_pesquisar}
+    Input Text    ${locator_pesquisar}    ${valor_codigo_natureza}
+    Wait Until Element Is Visible    ${button_codigo_natureza}
+    Click Element    ${button_codigo_natureza}
+    Wait Until Element Is Visible    ${lupa_tipo}
+    Click Element    ${lupa_tipo}
+    Wait Until Element Is Visible     ${select_boleto}
+    Click Element    ${select_boleto}
+    Wait Until Element Is Visible    ${emissao}
+    Input Text    ${emissao}    ${data_doc}
+    Wait Until Element Is Visible    ${vencimento}
+    Input Text    ${locator_vencimento}    ${vencimento}    
+    Wait Until Element Is Visible    ${vencimento_real}
+    Input Text    ${vencimento_real}    ${vencimento}  
+    Click Element    ${lupa_cliente}
+    Wait Until Element Is Visible    ${locator_pesquisar}
+    Input Text    ${locator_pesquisar}    ${pagador}
+    Click Element    ${select_cliente}
+    Wait Until Element Is Visible    ${lupa_centro_custo}
+    Click Element    ${lupa_centro_custo}
+    Wait Until Element Is Visible    ${locator_pesquisar}
+    Input Text    ${locator_pesquisar}    ${nome_id_centro_custo}
+    Wait Until Element Is Visible    ${button_id_centro_custo}
+    Click Element    ${button_id_centro_custo}
+    Wait Until Element Is Visible    ${locator_historico}
+    Input Text     ${locator_historico}    ${historico}
+    Wait Until Element Is Visible    ${button_adicionar_boletos}
+    Click Element     ${button_adicionar_boletos}
+    
+    #FALTA FINALIZAR O LOOP
 
 
 Lógica Data 
