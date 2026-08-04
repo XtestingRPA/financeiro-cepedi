@@ -1,0 +1,55 @@
+MESES_PT:
+  Jan: Jan
+  Feb: Fev
+  Mar: Mar
+  Apr: Abr
+  May: Mai
+  Jun: Jun
+  Jul: Jul
+  Aug: Ago
+  Sep: Set
+  Oct: Out
+  Nov: Nov
+  Dec: Dez
+
+url_conexa:                         https://hubbsalvador.conexa.app/index.php?r=site/login
+login_conexa:                       vanderleia
+senha_conexa:                        Financeiro@2026
+form_login_conexa:                   css:form[id="login-form"]
+input_login_conexa:                  css:input[id="LoginForm_username"]
+input_senha_conexa:                  css:input[id="LoginForm_password"]
+button_login_conexa:                 css:button[id="loginButton"]
+modal_conexa:                        css:a[class="btn btn btn-fechar"]
+button_menu_financeiro:              css:li[class="dropdown menu-financeiro"]
+button_contas_a_receber:             css:a[href="/index.php?r=cobranca/admin"]
+button_busca_avancada:               css:button[class="btn btn-secondary label-left busca-avancada"]
+input_cobranca_data_inicial:         css:input[id="Cobranca_date_first"]
+input_cobranca_data_final:           css:input[id="Cobranca_date_last"]
+data_dia1:                           xpath=//a[@class="ui-state-default" and text()="1"]
+seletor_mes:                         css:select[class="ui-datepicker-month"]
+seletor_ano:                         css:select[class="ui-datepicker-year"]
+button_filtrar:                      css:button[class="btn btn-primary"]
+checkbox_cobranca:                   css:input[id="cobranca-grid_c0_all"]
+button_acoes_em_lote:                css:a[class="btn dropdown-toggle"]
+button_download:                     css:a[onclick="javascript:vueApp.displayModal()"]
+button_continuar:                    css:button[class="btn btn-close btn-primary"]
+url_easonilo:                        https://easonilog.web.app/pages/coming-soon
+form_easonilo:                       css:div[id="coming-soon-form"]
+button_pag_cepedi:                   css:a[href="/pages/auth/cepedi/login-2"]
+form_login_cepedi:                   css:div[id="login-form"]
+input_login_easonilo:                css:input[formcontrolname="email"]
+input_senha_easonilo:                css:input[formcontrolname="password"]
+login_easonilo:                      lucca.dratovsky@xtesting.com.br
+senha_easonilo:                      cpd@123
+button_login_easonilo:               xpath://*[@id="login-form"]/form/button
+carregamento_login_easonilo:         xpath=//simple-snack-bar[.//span[text()='Carregando...']]
+usuario_easonilo:                    xpath=//span[normalize-space()="Lucca Dratovsky"]
+button_financeiro:                   xpath=//a[.//span[normalize-space()="Financeiros"]]
+button_movimentos:                   xpath=//a[.//span[normalize-space()="Movimentos"]]
+button_receber_contas:               xpath=//a[.//span[normalize-space()="Receber contas"]]
+header_contas_a_receber:             xpath=//span[normalize-space()="Contas a receber"]
+button_adicionar:                    css:button.add-product-button
+header_novo_contas:                  xpath://span[normalize-space()="Conta a receber"]
+input_prefixo:                       xpath://input[@formcontrolname="prefixo"]
+input_cli:                           xpath://span[normalize-space()="CLI"]
+input_numero:                        css:input[formcontrolname="numero"]
