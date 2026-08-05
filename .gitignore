@@ -1,0 +1,4 @@
+*.py
+*.venv/
+*.png
+*.html

@@ -11,7 +11,7 @@ Variables    variables.yaml
 
 *** Tasks ***
 Processo Financeiro CEPEDI
-    # Operação Conexa
+    Operação Conexa
     Extrair Dados Boleto
     Operação Easonilo
 
@@ -285,7 +285,7 @@ Operação Easonilo
         Input Text     ${locator_historico}    BOLETO MES ${boleto}[parcela]
 
         Wait Until Element Is Visible    ${button_adicionar_boletos}
-        Click Element     ${button_adicionar_boletos}
+        # Click Element     ${button_adicionar_boletos}
 
     END
 
@@ -299,16 +299,18 @@ Lógica Data
     ${primeiro_prox}    Convert Date    ${proximo_mes}    result_format=%Y-%m-01
     ${ultimo_dia_mes}    Subtract Time From Date    ${primeiro_prox}    1 day    result_format=%d
     Set Global Variable    ${ultimo_dia_mes}
+    
 
     ${ano_atual}        Get Current Date    result_format=%Y
     ${mes_atual_label}  Get Current Date    result_format=%b
     ${mes_atual_label}   Set Variable    ${MESES_PT}[${mes_atual_label}]
 
+    Scroll Element Into View    ${seletor_mes}
     ${mes_selecionado}    Get Selected List Label    ${seletor_mes}
     ${ano_selecionado}    Get Selected List Value    ${seletor_ano}
 
     # Ajusta ano
-
+    
     IF    '${ano_selecionado}' != '${ano_atual}'
         Select From List By Value    ${seletor_ano}    ${ano_atual}
     END
