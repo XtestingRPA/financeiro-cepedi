@@ -81,8 +81,7 @@ valor_codigo_natureza:               11200
 button_codigo_natureza:              xpath=//cweb-naturezas-search//mat-row[.//mat-cell[contains(normalize-space(), 'DOACOES HUB SSA')]]
 lupa_tipo:                           css:mat-select[formcontrolname="tipo"]
 select_boleto:                       xpath=//mat-option//span[contains(text(), 'BOL - Boleto')]
-select_cliente:                      xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-nome') and normalize-space()='${pagador}' ]]
-nome_id_centro_custo:                "HUB - SSA"
+select_cliente:                      xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-nome') and normalize-space()='${pagador}']]
+nome_id_centro_custo:                HUB - SSA
 button_id_centro_custo:              xpath=//mat-cell[contains(@class,'mat-column-descricao')]//p[normalize-space()='HUB - SSA']
-${historico}:                        "BOLETO MES ${mes_vencimento}"
-${button_adicionar_boletos}:          css:button.save-product-button
+button_adicionar_boletos:            css:button.save-product-button
