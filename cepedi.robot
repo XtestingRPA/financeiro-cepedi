@@ -12,8 +12,8 @@ Variables    variables.yaml
 *** Tasks ***
 Processo Financeiro CEPEDI
     Operação Conexa
-    Extrair Dados Boleto
-    Operação Easonilo
+    #Extrair Dados Boleto
+    #Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
@@ -55,13 +55,8 @@ Operação Conexa
     Scroll Element Into View    ${input_cobranca_data_inicial}
     Click Element    ${input_cobranca_data_inicial}
     Lógica Data
-    Click Element    ${data_dia1}
-    Click Element    ${input_cobranca_data_final}
-    ${data_ultimo_dia_mes}    Set Variable    xpath=//td[not(contains(@class,"ui-datepicker-other-month"))]//a[normalize-space(.)="${ultimo_dia_mes}"]
-    Wait Until Element Is Visible    ${data_ultimo_dia_mes}    15s
-    Click Element    ${data_ultimo_dia_mes}
-    Wait Until Element Is Visible    ${button_filtrar}
-    Click Element    ${button_filtrar}
+    ${elemento}=    Get WebElement    ${button_filtrar}
+    Execute Javascript    arguments[0].click();    ARGUMENTS    ${elemento}
 
     # Seleciona todos os boletos filtrados (de uma só vez) e faz o download dos mesmos.
 
@@ -290,36 +285,20 @@ Operação Easonilo
     END
 
 
-Lógica Data 
-    [Documentation]    Lógica para pegar o último dia do mês atua e conferir se o mês e ano selecionados estão corretos.
+Lógica Data
+    [Documentation]    Preenche via JavaScript os campos de data com o primeiro e o último dia do mês atual.
 
-    ${hoje}          Get Current Date
-    ${primeiro_dia}  Convert Date    ${hoje}    result_format=%Y-%m-01
-    ${proximo_mes}   Add Time To Date    ${primeiro_dia}    32 days
-    ${primeiro_prox}    Convert Date    ${proximo_mes}    result_format=%Y-%m-01
-    ${ultimo_dia_mes}    Subtract Time From Date    ${primeiro_prox}    1 day    result_format=%d
-    Set Global Variable    ${ultimo_dia_mes}
-    
+    ${hoje}                Get Current Date
+    ${primeiro_dia_iso}    Convert Date    ${hoje}    result_format=%Y-%m-01
+    ${prox_mes_iso}        Add Time To Date    ${primeiro_dia_iso}    32 days    result_format=%Y-%m-01
+    ${ultimo_dia_iso}      Subtract Time From Date    ${prox_mes_iso}    1 day    result_format=%Y-%m-%d
 
-    ${ano_atual}        Get Current Date    result_format=%Y
-    ${mes_atual_label}  Get Current Date    result_format=%b
-    ${mes_atual_label}   Set Variable    ${MESES_PT}[${mes_atual_label}]
+    ${primeiro_dia}    Convert Date    ${primeiro_dia_iso}    result_format=%d/%m/%Y
+    ${ultimo_dia}      Convert Date    ${ultimo_dia_iso}    result_format=%d/%m/%Y
 
-    Scroll Element Into View    ${seletor_mes}
-    ${mes_selecionado}    Get Selected List Label    ${seletor_mes}
-    ${ano_selecionado}    Get Selected List Value    ${seletor_ano}
-
-    # Ajusta ano
-    
-    IF    '${ano_selecionado}' != '${ano_atual}'
-        Select From List By Value    ${seletor_ano}    ${ano_atual}
-    END
-
-    # Ajusta mês
-
-    IF    '${mes_selecionado}' != '${mes_atual_label}'
-        Select From List By Label    ${seletor_mes}    ${mes_atual_label}
-    END
+    Execute Javascript    document.getElementById('Cobranca_date_first').value = '${primeiro_dia}';
+    Execute Javascript    document.getElementById('Cobranca_date_last').value = '${ultimo_dia}';
+    Sleep    1s
 
 Abrir Chrome Permitindo Conteudo Inseguro
 
