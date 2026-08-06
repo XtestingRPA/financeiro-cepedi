@@ -53,7 +53,6 @@ Operação Conexa
     Click Element    ${button_busca_avancada}
     Sleep    1s
     Scroll Element Into View    ${input_cobranca_data_inicial}
-    Click Element    ${input_cobranca_data_inicial}
     Lógica Data
     ${elemento}=    Get WebElement    ${button_filtrar}
     Execute Javascript    arguments[0].click();    ARGUMENTS    ${elemento}
@@ -66,14 +65,14 @@ Operação Conexa
     Click Element    ${button_acoes_em_lote}
     Click Element    ${button_download}
 
-    Assistente Operação
 
-    # ${visivel}    Run Keyword And Return Status    Wait Until Element Is Visible    ${button_continuar}    timeout=3s
+    # ${visivel}    Run Keyword And Return Status    Wait Until Element Is Visible    ${button_confirmar}    timeout=3s
 
     # IF    ${visivel}
-    #     Click Element    ${button_continuar}
+    #     Click Element    ${button_confirmar}
     # END    
 
+    Assistente Operação
 
 Assistente Operação
     [Documentation]    Realiza instruções a respeito do download dos boletos.
@@ -84,7 +83,7 @@ Assistente Operação
     Add text    Siga os passos abaixo:
     Add text    1. Acesse seu e-mail
     Add text    2. Baixe os boletos recebidos
-    Add text    3. Salve os arquivos na "Boletos"
+    Add text    3. Salve os arquivos na pasta "Boletos"
 
     Add text    Após finalizar, clique em "Continuar" para prosseguir.
 
@@ -95,7 +94,6 @@ Assistente Operação
     IF    "${resposta}" == "Cancelar"
         Fail    Processo cancelado pelo usuário
     END
-
 
 
 Extrair Dados Boleto
