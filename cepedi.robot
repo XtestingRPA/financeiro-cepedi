@@ -265,8 +265,9 @@ Operação Easonilo
 
         Click Element    ${lupa_cliente}
         Wait Until Element Is Visible    ${locator_pesquisar}
-        Input Text    ${locator_pesquisar}    ${boleto}[nome_pagador]
-        Click Element    xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-nome') and normalize-space()='${boleto}[nome_pagador]']]
+        ${codigo_cliente}    Set Variable    ${clientes}[${boleto}[nome_pagador]]
+        Input Text    ${locator_pesquisar}    ${codigo_cliente}
+        Click Element    xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-codigo') and normalize-space()='${codigo_cliente}']]
 
         Wait Until Element Is Visible    ${lupa_centro_custo}
         Click Element    ${lupa_centro_custo}
