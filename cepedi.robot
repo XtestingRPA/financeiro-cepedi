@@ -6,14 +6,15 @@ Library      DateTime
 Library      RPA.Assistant
 Library      OperatingSystem
 Library      Collections
+Library      Utils.py
 Variables    variables.yaml
 
 
 *** Tasks ***
 Processo Financeiro CEPEDI
-    Operação Conexa
-    #Extrair Dados Boleto
-    #Operação Easonilo
+    #Operação Conexa
+    Extrair Dados Boleto
+    Operação Easonilo
 
 *** Keywords ***
 Operação Conexa
@@ -265,9 +266,10 @@ Operação Easonilo
 
         Click Element    ${lupa_cliente}
         Wait Until Element Is Visible    ${locator_pesquisar}
-        ${codigo_cliente}    Set Variable    ${clientes}[${boleto}[nome_pagador]]
+        ${codigo_cliente}    Buscar Codigo Cliente    ${boleto}[nome_pagador]    ${clientes}
         Input Text    ${locator_pesquisar}    ${codigo_cliente}
-        Click Element    xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-codigo') and normalize-space()='${codigo_cliente}']]
+        Wait Until Element Is Visible    xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-codigo') and normalize-space()='00${codigo_cliente}']]
+        Click Element    xpath=//mat-row[.//mat-cell[contains(@class,'mat-column-codigo') and normalize-space()='00${codigo_cliente}']]
 
         Wait Until Element Is Visible    ${lupa_centro_custo}
         Click Element    ${lupa_centro_custo}

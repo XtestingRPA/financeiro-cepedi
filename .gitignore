@@ -1,4 +1,6 @@
-*.py
 *.venv/
 *.png
 *.html
+results/
+*.xml
+__pycache__
